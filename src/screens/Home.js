@@ -19,6 +19,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import { useEffect, useRef, useState } from 'react';
+import getTimeByLocal from '../helpers/convertTime';
 
 const WeatherIcon = weatherType => {
   if (weatherType == 'Sunny') {
@@ -27,7 +28,7 @@ const WeatherIcon = weatherType => {
   if (weatherType == 'Rainy') {
     return <Feather name="cloud-rain" size={40} color="white" />;
   }
-  if (weatherType == 'Cloudy') {
+  if (weatherType == 'Cloudy' || weatherType == 'Clouds') {
     return <Feather name="cloud" size={40} color="white" />;
   }
   if (weatherType == 'Night') {
@@ -37,33 +38,39 @@ const WeatherIcon = weatherType => {
 
 const kaka = require('../assets/sunny.jpg');
 
-export default function Home({navigation}) {
+export default function Home({route, navigation}) {
   const {width: windowWidth, height: windowHeight} = useWindowDimensions();
 
+  const { city } = route?.params;
+
   const [currentWeather, setCurrentWeather] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
 
   const scrollX = useRef(new Animated.Value(0)).current;
 
   const getWeatherByName = async () => {
-    const res = await weatherService.getWeatherByName();
-    console.log("res", res);
+    const res = await weatherService.getWeatherByName(city);
+    // console.log("res", res);
     if (res?.status === 200) {
       setCurrentWeather(res?.data);
+      setIsLoading(false);
     }
   }
 
   useEffect(() => {
-    console.log("first");
     getWeatherByName();
-  }, []);
+  }, [city]);
 
-  // console.log(currentWeather?.weather);
+  // console.log(getTimeByLocal.getDate(currentWeather.dt * 1000));
+  // console.log(new Date(currentWeather.dt * 1000));
 
   // const arrayy = Object.keys(currentWeather?.weather);
 
-  // console.log(arrayy);
-return (
-  <>
+  return (
+    <>
+      {
+      isLoading ? <View style={styles.container}><Text style={{fontSize: 30}}>Đang tải...</Text></View> :
+        <>
       <StatusBar barStyle="light-content" />
       <ScrollView
         horizontal={true}
@@ -100,16 +107,16 @@ return (
                   <View style={styles.topInfoWrapper}>
                     <View>
                       <Text style={styles.city}>{currentWeather.name}</Text>
-                      <Text style={styles.time}>{currentWeather.dt}</Text>
+                      <Text style={styles.time}>{getTimeByLocal.getDate(currentWeather.dt * 1000)}</Text>
                     </View>
                     <View>
                       <Text style={styles.temparature}>
-                        {`${currentWeather.main?.temp}\u2103`}
+                        {`${Math.round(currentWeather.main?.temp)}\u2103`}
                       </Text>
                       <View style={{flexDirection: 'row'}}>
-                        {/* {WeatherIcon(location.weatherType)} */}
+                        {WeatherIcon(currentWeather?.weather[0]?.main)}
                         <Text style={styles.weatherType}>
-                          {/* {currentWeather?.weather[0]?.main} */}
+                          {currentWeather?.weather[0]?.main}
                         </Text>
                       </View>
                     </View>
@@ -166,6 +173,7 @@ return (
                         <View
                           style={{
                             width: currentWeather.main?.humidity / 2,
+                            // width: 2,
                             height: 5,
                             backgroundColor: '#F44336',
                           }}
@@ -236,6 +244,7 @@ return (
                         <View
                           style={{
                             width: location.wind / 2,
+                            // width: 2,
                             height: 5,
                             backgroundColor: '#69F0AE',
                           }}
@@ -252,6 +261,7 @@ return (
                         <View
                           style={{
                             width: location.rain / 2,
+                            // width: 2,
                             height: 5,
                             backgroundColor: '#F44336',
                           }}
@@ -268,6 +278,7 @@ return (
                         <View
                           style={{
                             width: location.humidity / 2,
+                            // width: 2,
                             height: 5,
                             backgroundColor: '#F44336',
                           }}
@@ -284,11 +295,13 @@ return (
       </ScrollView>
 
       <View style={styles.appHeader}>
-          <TouchableOpacity onPress={() => {navigation.navigate('Search')}}>
+          <TouchableOpacity onPress={() => {
+            navigation.navigate('Search');
+          }}>
             <Feather name="search" size={40} color="white" />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => {}}>
-            <Feather name="menu" size={40} color="white" />
+          <TouchableOpacity onPress={() => {navigation.navigate('NextDay')}}>
+            <Text style={{color: '#fff', marginBottom: 10}}>14 NGÀY</Text>
           </TouchableOpacity>
         </View>
 
@@ -309,7 +322,9 @@ return (
           })}
         </View>
   </>
-);
+    }
+    </>
+  );
 }
 
 const styles = StyleSheet.create({

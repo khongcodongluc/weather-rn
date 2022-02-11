@@ -11,8 +11,16 @@ import {
 } from 'react-native';
 
 import { Feather } from '@expo/vector-icons'
+import citys from '../../model/city';
 
-export default function Search() {
+export default function Search({navigation}) {
+
+    const [search, setSearch] = useState("");
+    const [city, setCity] = useState("");
+
+    // console.log(citys.filter((item) => item?.city?.toString().startsWith(search)))
+
+
   return (
     <View style={styles.container}>
             {/* <Header/> */}
@@ -23,8 +31,21 @@ export default function Search() {
                     <TextInput
                         // style={{...FONTS.body3}}
                         placeholder="Tìm kiếm"
+                        onChangeText={setSearch}
+                        value={search}
                     />
                 </View>
+                {
+                    (citys.filter((item) => item?.city?.toString().startsWith(search))).map((item, index) => {
+                        return (
+                            <TouchableOpacity key={index} style={styles.itemSearch} onPress={() => {navigation.navigate('Home', {
+                                city: item.city
+                            })}}>
+                                <Text style={styles.itemSearchText}>{item.city}</Text>
+                            </TouchableOpacity>
+                        );
+                    })
+                }
                 {/* <ScrollView style={{marginBottom: 50}} 
                     showsVerticalScrollIndicator={false}
                     refreshControl={
@@ -75,8 +96,18 @@ const styles = StyleSheet.create({
       backgroundColor: '#fff',
       borderRadius:10,
       marginTop: 5,
+      marginBottom: 10,
       height: 40,
       alignItems: 'center',
+  },
+  itemSearch: {
+    marginBottom: 15,
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 5
+  },
+  itemSearchText: {
+    fontSize: 20,
   },
   avatar:{
       width:50,
