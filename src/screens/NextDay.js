@@ -1,93 +1,40 @@
-import { Text, StyleSheet, View, ScrollView } from 'react-native'
+import { Text, StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native'
 import React from 'react'
 
-import { Feather } from '@expo/vector-icons'
+import { AntDesign, Feather } from '@expo/vector-icons'; 
 
-export default function NextDay() {
+export default function NextDay({route, navigation}) {
+    const { data } = route?.params;
+    // console.log("data", data);
     return (
       <View style={styles.container}>
-        <Text style={styles.header}>14 NGÀY</Text>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => {
+                navigation.navigate('Home');
+            }}>
+                <AntDesign name="back" size={40} color="black" />
+            </TouchableOpacity>
+            <Text style={styles.headerItem}>5 NGÀY</Text>
+          </View>
         <ScrollView>
-        <View style={styles.list}>
-            <Text style={styles.date}>10/02/2022</Text>
-            <Feather style={styles.icon} name="sun" size={40} color="black" />
-            <View>
-                <Text>23</Text>
-                <Text>16</Text>
-            </View>
-        </View>
-        <View style={styles.list}>
-            <Text style={styles.date}>10/02/2022</Text>
-            <Feather style={styles.icon} name="sun" size={40} color="black" />
-            <View>
-                <Text>23</Text>
-                <Text>16</Text>
-            </View>
-        </View>
-        <View style={styles.list}>
-            <Text style={styles.date}>10/02/2022</Text>
-            <Feather style={styles.icon} name="sun" size={40} color="black" />
-            <View>
-                <Text>23</Text>
-                <Text>16</Text>
-            </View>
-        </View>
-        <View style={styles.list}>
-            <Text style={styles.date}>10/02/2022</Text>
-            <Feather style={styles.icon} name="sun" size={40} color="black" />
-            <View>
-                <Text>23</Text>
-                <Text>16</Text>
-            </View>
-        </View>
-        <View style={styles.list}>
-            <Text style={styles.date}>10/02/2022</Text>
-            <Feather style={styles.icon} name="sun" size={40} color="black" />
-            <View>
-                <Text>23</Text>
-                <Text>16</Text>
-            </View>
-        </View>
-        <View style={styles.list}>
-            <Text style={styles.date}>10/02/2022</Text>
-            <Feather style={styles.icon} name="sun" size={40} color="black" />
-            <View>
-                <Text>23</Text>
-                <Text>16</Text>
-            </View>
-        </View>
-        <View style={styles.list}>
-            <Text style={styles.date}>10/02/2022</Text>
-            <Feather style={styles.icon} name="sun" size={40} color="black" />
-            <View>
-                <Text>23</Text>
-                <Text>16</Text>
-            </View>
-        </View>
-        <View style={styles.list}>
-            <Text style={styles.date}>10/02/2022</Text>
-            <Feather style={styles.icon} name="sun" size={40} color="black" />
-            <View>
-                <Text>23</Text>
-                <Text>16</Text>
-            </View>
-        </View>
-        <View style={styles.list}>
-            <Text style={styles.date}>10/02/2022</Text>
-            <Feather style={styles.icon} name="sun" size={40} color="black" />
-            <View>
-                <Text>23</Text>
-                <Text>16</Text>
-            </View>
-        </View>
-        <View style={styles.list}>
-            <Text style={styles.date}>10/02/2022</Text>
-            <Feather style={styles.icon} name="sun" size={40} color="black" />
-            <View>
-                <Text>23</Text>
-                <Text>16</Text>
-            </View>
-        </View>
+            {
+                data.map((item, index) => {
+                    return (
+                        <View key={index} style={styles.list}>
+                            <Text style={styles.date}>{item.date}</Text>
+                            <Feather style={styles.icon} name="sun" size={40} color="black" />
+                            <View>
+                                <Text>
+                                    {`${Math.round(item.day.maxtemp_c)}\u2103`}
+                                </Text>
+                                <Text>
+                                    {`${Math.round(item.day.mintemp_c)}\u2103`}
+                                </Text>
+                            </View>
+                        </View>
+                    );
+                })
+            }
         </ScrollView>
       </View>
     )
@@ -100,6 +47,9 @@ const styles = StyleSheet.create({
         height: '100%',
     },
     header: {
+        
+    },
+    headerItem: {
         marginTop: 10,
         textAlign: 'center',
         fontSize: 24,

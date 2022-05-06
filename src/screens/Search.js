@@ -10,8 +10,9 @@ import {
     ScrollView,
 } from 'react-native';
 
-import { Feather } from '@expo/vector-icons'
+import { Feather, AntDesign } from '@expo/vector-icons'
 import citys from '../../model/city';
+import weatherService from '../../api/weatherApi';
 
 export default function Search({navigation}) {
 
@@ -20,11 +21,27 @@ export default function Search({navigation}) {
 
     // console.log(citys.filter((item) => item?.city?.toString().startsWith(search)))
 
+    const searchFunc = async (param) => {
+        const res = await weatherService.searchCity(param);
+        console.log("res", res);
+        // if (res?.status === 200) {
+        //   setCurrentWeather(res?.data);
+        // }
+    }
+
+    useEffect(() => {
+        searchFunc(search);
+    }, [search]);
 
   return (
     <View style={styles.container}>
             {/* <Header/> */}
             <SafeAreaView style={{height: '95%'}}>
+                <TouchableOpacity onPress={() => {
+                    navigation.navigate('Home');
+                }}>
+                    <AntDesign name="back" size={40} color="black" />
+                </TouchableOpacity>
                 {/* Search Bar */}
                 <View style={styles.inputSection}>
                     <Feather name="search" size={20} color="red" />

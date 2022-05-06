@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "https://api.openweathermap.org/data/2.5",
+  // baseURL: "https://api.openweathermap.org/data/2.5",
+  baseURL: "https://api.weatherapi.com/v1",
   // timeout: 30000,
   // headers: {
   //   "X-Requested-With": "XMLHttpRequest",

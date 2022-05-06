@@ -8,6 +8,7 @@ import {
   StatusBar,
   Animated,
   TouchableOpacity,
+  Image
 } from 'react-native';
 
 import locations from './locations';
@@ -49,8 +50,9 @@ export default function Home({route, navigation}) {
   const scrollX = useRef(new Animated.Value(0)).current;
 
   const getWeatherByName = async () => {
+    setIsLoading(true);
     const res = await weatherService.getWeatherByName(city);
-    // console.log("res", res);
+    console.log("res", res?.status);
     if (res?.status === 200) {
       setCurrentWeather(res?.data);
       setIsLoading(false);
@@ -62,7 +64,7 @@ export default function Home({route, navigation}) {
   }, [city]);
 
   // console.log(getTimeByLocal.getDate(currentWeather.dt * 1000));
-  // console.log(new Date(currentWeather.dt * 1000));
+  // console.log(`https:${currentWeather?.current?.condition?.icon}`);
 
   // const arrayy = Object.keys(currentWeather?.weather);
 
@@ -71,7 +73,141 @@ export default function Home({route, navigation}) {
       {
       isLoading ? <View style={styles.container}><Text style={{fontSize: 30}}>Đang tải...</Text></View> :
         <>
-      <StatusBar barStyle="light-content" />
+          <StatusBar barStyle="light-content" />
+          <View
+            style={{width: windowWidth, height: windowHeight}}
+            // key={index}
+          >
+            <ImageBackground
+              source={kaka}
+              style={{
+                flex: 1,
+              }}>
+                <ScrollView
+                  style={{
+                    flex: 1,
+                    backgroundColor: 'rgba(0,0,0,0.3)',
+                    padding: 20,
+                  }}
+                >
+                  <View style={styles.topInfoWrapper}>
+                    <View>
+                      <Text style={styles.city}>{currentWeather.location.name}</Text>
+                      {/* <Text style={styles.time}>{getTimeByLocal.getDate(currentWeather.dt * 1000)}</Text> */}
+                      <Text style={styles.time}>{currentWeather.location.localtime}</Text>
+                    </View>
+                    <View
+                      style={{
+                        marginTop: 100
+                      }}
+                    >
+                      <Text style={styles.temparature}>
+                        {/* {`${Math.round(currentWeather.main?.temp)}\u2103`} */}
+                        {`${Math.round(currentWeather.current?.temp_c)}\u2103`}
+                      </Text>
+                      <View style={{flexDirection: 'row'}}>
+                        {/* {WeatherIcon(currentWeather?.weather[0]?.main)} */}
+                        <Image
+                          alt="icon"
+                          source={{
+                            uri: `https:${currentWeather?.current?.condition?.icon}`,
+                          }}
+                        />
+                        <Text style={styles.weatherType}>
+                          {currentWeather?.current?.condition?.text}
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                  <View
+                    style={{
+                      borderBottomColor: 'rgba(255,255,255,0.7)',
+                      marginTop: 20,
+                      borderBottomWidth: 1,
+                    }}
+                  />
+                  <View style={styles.bottomInfoWrapper}>
+                    <View style={{alignItems: 'center'}}>
+                      <Text style={styles.infoText}>Wind</Text>
+                      <Text style={[styles.infoText, {fontSize: 24}]}>
+                        {currentWeather.current?.wind_kph}
+                      </Text>
+                      <Text style={styles.infoText}>km/h</Text>
+                      {/* <View style={styles.infoBar}>
+                        <View
+                          style={{
+                            width: currentWeather.current?.wind_kph / 2,
+                            height: 5,
+                            backgroundColor: '#69F0AE',
+                          }}
+                        />
+                      </View> */}
+                    </View>
+                    <View style={{alignItems: 'center'}}>
+                      <Text style={styles.infoText}>Cloud</Text>
+                      <Text style={[styles.infoText, {fontSize: 24}]}>
+                        {/* {location.rain} */}
+                        {currentWeather.current?.cloud}
+                      </Text>
+                      <Text style={styles.infoText}>%</Text>
+                      {/* <View style={styles.infoBar}>
+                        <View
+                          style={{
+                            width: 4 / 2,
+                            // width: location.rain / 2,
+                            height: 5,
+                            backgroundColor: '#F44336',
+                          }}
+                        />
+                      </View> */}
+                    </View>
+                    <View style={{alignItems: 'center'}}>
+                      <Text style={styles.infoText}>Humidity</Text>
+                      <Text style={[styles.infoText, {fontSize: 24}]}>
+                        {currentWeather.current?.humidity}
+                      </Text>
+                      <Text style={styles.infoText}>%</Text>
+                      {/* <View style={styles.infoBar}>
+                        <View
+                          style={{
+                            width: currentWeather.current?.humidity / 2,
+                            // width: 2,
+                            height: 5,
+                            backgroundColor: '#F44336',
+                          }}
+                        />
+                      </View> */}
+                    </View>
+                  </View>
+                  <ScrollView
+                    horizontal={true}
+                    style={{
+                      borderBottomColor: 'rgba(255,255,255,0.7)',
+                      borderBottomWidth: 1,
+                    }}
+                  />
+                    <ScrollView
+                      style={styles.nextHour}
+                      horizontal={true}
+                    >
+                      {
+                        currentWeather.forecast.forecastday[0].hour.map((item, index) => {
+                          return (
+                            <View key={index} style={styles.itemHour}>
+                              <Text style={styles.itemTextHour}>
+                                {`${Math.round(item.temp_c)}\u2103`}
+                              </Text>
+                              <Text style={styles.itemTextHour}>
+                                {item.time.split(" ")[1]}
+                              </Text>
+                            </View>
+                          );
+                        })
+                      }
+                    </ScrollView>
+                  </ScrollView>
+              </ImageBackground>
+            </View>
       <ScrollView
         horizontal={true}
         pagingEnabled
@@ -89,101 +225,7 @@ export default function Home({route, navigation}) {
           {useNativeDriver: false},
         )}
         scrollEventThrottle={1}>
-            <View
-              style={{width: windowWidth, height: windowHeight}}
-              // key={index}
-              >
-              <ImageBackground
-                source={kaka}
-                style={{
-                  flex: 1,
-                }}>
-                <View
-                  style={{
-                    flex: 1,
-                    backgroundColor: 'rgba(0,0,0,0.3)',
-                    padding: 20,
-                  }}>
-                  <View style={styles.topInfoWrapper}>
-                    <View>
-                      <Text style={styles.city}>{currentWeather.name}</Text>
-                      <Text style={styles.time}>{getTimeByLocal.getDate(currentWeather.dt * 1000)}</Text>
-                    </View>
-                    <View>
-                      <Text style={styles.temparature}>
-                        {`${Math.round(currentWeather.main?.temp)}\u2103`}
-                      </Text>
-                      <View style={{flexDirection: 'row'}}>
-                        {WeatherIcon(currentWeather?.weather[0]?.main)}
-                        <Text style={styles.weatherType}>
-                          {currentWeather?.weather[0]?.main}
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                  <View
-                    style={{
-                      borderBottomColor: 'rgba(255,255,255,0.7)',
-                      marginTop: 20,
-                      borderBottomWidth: 1,
-                    }}
-                  />
-                  <View style={styles.bottomInfoWrapper}>
-                    <View style={{alignItems: 'center'}}>
-                      <Text style={styles.infoText}>Wind</Text>
-                      <Text style={[styles.infoText, {fontSize: 24}]}>
-                        {currentWeather.wind?.speed}
-                      </Text>
-                      <Text style={styles.infoText}>km/h</Text>
-                      <View style={styles.infoBar}>
-                        <View
-                          style={{
-                            width: currentWeather.wind?.speed / 2,
-                            height: 5,
-                            backgroundColor: '#69F0AE',
-                          }}
-                        />
-                      </View>
-                    </View>
-                    <View style={{alignItems: 'center'}}>
-                      <Text style={styles.infoText}>Rain</Text>
-                      <Text style={[styles.infoText, {fontSize: 24}]}>
-                        {/* {location.rain} */}
-                        kaka
-                      </Text>
-                      <Text style={styles.infoText}>%</Text>
-                      <View style={styles.infoBar}>
-                        <View
-                          style={{
-                            width: 4 / 2,
-                            // width: location.rain / 2,
-                            height: 5,
-                            backgroundColor: '#F44336',
-                          }}
-                        />
-                      </View>
-                    </View>
-                    <View style={{alignItems: 'center'}}>
-                      <Text style={styles.infoText}>Humidity</Text>
-                      <Text style={[styles.infoText, {fontSize: 24}]}>
-                        {currentWeather.main?.humidity}
-                      </Text>
-                      <Text style={styles.infoText}>%</Text>
-                      <View style={styles.infoBar}>
-                        <View
-                          style={{
-                            width: currentWeather.main?.humidity / 2,
-                            // width: 2,
-                            height: 5,
-                            backgroundColor: '#F44336',
-                          }}
-                        />
-                      </View>
-                    </View>
-                  </View>
-                </View>
-              </ImageBackground>
-            </View>
+            
             {locations.map((location, index) => {
           if (location.weatherType == 'Sunny') {
             var bgImg = require('../assets/sunny.jpg');
@@ -294,14 +336,22 @@ export default function Home({route, navigation}) {
         })}
       </ScrollView>
 
-      <View style={styles.appHeader}>
+
+        <View style={styles.appHeader}>
           <TouchableOpacity onPress={() => {
             navigation.navigate('Search');
           }}>
             <Feather name="search" size={40} color="white" />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => {navigation.navigate('NextDay')}}>
-            <Text style={{color: '#fff', marginBottom: 10}}>14 NGÀY</Text>
+          <TouchableOpacity onPress={() => {navigation.navigate('NextDay', {
+            data: currentWeather.forecast.forecastday
+          })}}>
+            <Feather name="heart" size={40} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => {navigation.navigate('NextDay', {
+            data: currentWeather.forecast.forecastday
+          })}}>
+            <Text style={{color: '#fff', marginBottom: 10}}>5days</Text>
           </TouchableOpacity>
         </View>
 
@@ -328,6 +378,19 @@ export default function Home({route, navigation}) {
 }
 
 const styles = StyleSheet.create({
+  nextHour: {
+    marginVertical: 20,
+  },
+  itemHour: {
+    marginRight: 15,
+    paddingRight: 10,
+    borderRightWidth: 1,
+    borderColor: '#fff'
+  },
+  itemTextHour: {
+    color: '#fff',
+    fontSize: 30,
+  },
   container: {
     flex: 1,
     alignItems: 'center',
@@ -344,29 +407,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20
   },
   topInfoWrapper: {
-    flex: 1,
+    // flex: 1,
     marginTop: 160,
-    justifyContent: 'space-between',
+    // justifyContent: 'space-between',
   },
   city: {
     color: '#fff',
     fontSize: 30,
-    // fontFamily: 'Lato-Regular',
     fontWeight: 'bold',
   },
   time: {
     color: '#fff',
-    // fontFamily: 'Lato-Regular',
     fontWeight: 'bold',
   },
   temparature: {
     color: '#fff',
-    // fontFamily: 'Lato-Light',
     fontSize: 85,
   },
   weatherType: {
     color: '#fff',
-    // fontFamily: 'Lato-Regular',
     fontWeight: 'bold',
     fontSize: 25,
     lineHeight: 34,
@@ -380,7 +439,6 @@ const styles = StyleSheet.create({
   infoText: {
     color: 'white',
     fontSize: 14,
-    // fontFamily: 'Lato-Regular',
     fontWeight: 'bold',
   },
   infoBar: {
