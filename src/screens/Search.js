@@ -17,16 +17,16 @@ import weatherService from '../../api/weatherApi';
 export default function Search({navigation}) {
 
     const [search, setSearch] = useState("");
-    const [city, setCity] = useState("");
+    const [city, setCity] = useState([]);
 
     // console.log(citys.filter((item) => item?.city?.toString().startsWith(search)))
 
     const searchFunc = async (param) => {
         const res = await weatherService.searchCity(param);
-        console.log("res", res);
-        // if (res?.status === 200) {
-        //   setCurrentWeather(res?.data);
-        // }
+        console.log("res", res?.data);
+        if (res?.status === 200) {
+            setCity(res?.data);
+        }
     }
 
     useEffect(() => {
@@ -53,15 +53,15 @@ export default function Search({navigation}) {
                     />
                 </View>
                 {
-                    (citys.filter((item) => item?.city?.toString().startsWith(search))).map((item, index) => {
+                    (city.map((item) => {
                         return (
-                            <TouchableOpacity key={index} style={styles.itemSearch} onPress={() => {navigation.navigate('Home', {
-                                city: item.city
+                            <TouchableOpacity key={item?.id} style={styles.itemSearch} onPress={() => {navigation.navigate('Home', {
+                                city: item.name
                             })}}>
-                                <Text style={styles.itemSearchText}>{item.city}</Text>
+                                <Text style={styles.itemSearchText}>{`${item?.name} - ${item?.country}`}</Text>
                             </TouchableOpacity>
                         );
-                    })
+                    }))
                 }
                 {/* <ScrollView style={{marginBottom: 50}} 
                     showsVerticalScrollIndicator={false}

@@ -10,7 +10,7 @@ const getWeatherByName = async (name = "Hanoi") => {
     }
 };
 
-const searchCity = async (name) => {
+const searchCity = async (name = "") => {
   try {
     const res = await sendGet(`/search.json?key=1e648b8ae2c444068a182111221202&q=${name}`);
     return res;

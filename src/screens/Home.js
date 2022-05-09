@@ -50,9 +50,10 @@ export default function Home({route, navigation}) {
   const scrollX = useRef(new Animated.Value(0)).current;
 
   const getWeatherByName = async () => {
+    console.log("aaa")
     setIsLoading(true);
     const res = await weatherService.getWeatherByName(city);
-    console.log("res", res?.status);
+    console.log("res", res);
     if (res?.status === 200) {
       setCurrentWeather(res?.data);
       setIsLoading(false);
