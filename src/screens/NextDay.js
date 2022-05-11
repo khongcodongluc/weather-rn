@@ -1,11 +1,11 @@
-import { Text, StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native'
+import { Text, StyleSheet, View, ScrollView, TouchableOpacity, Image } from 'react-native'
 import React from 'react'
 
 import { AntDesign, Feather } from '@expo/vector-icons'; 
 
 export default function NextDay({route, navigation}) {
     const { data } = route?.params;
-    // console.log("data", data);
+    console.log("data", data[0]);
     return (
       <View style={styles.container}>
           <View style={styles.header}>
@@ -14,7 +14,7 @@ export default function NextDay({route, navigation}) {
             }}>
                 <AntDesign name="back" size={40} color="black" />
             </TouchableOpacity>
-            <Text style={styles.headerItem}>5 NGÀY</Text>
+            <Text style={styles.headerItem}>3 NGÀY</Text>
           </View>
         <ScrollView>
             {
@@ -22,12 +22,18 @@ export default function NextDay({route, navigation}) {
                     return (
                         <View key={index} style={styles.list}>
                             <Text style={styles.date}>{item.date}</Text>
-                            <Feather style={styles.icon} name="sun" size={40} color="black" />
+                            <Image
+                                alt="icon"
+                                source={{
+                                    uri: `https:${item?.day?.condition?.icon}`,
+                                }}
+                                style={{width: 55, height: 55, marginRight: 38}}
+                            />
                             <View>
-                                <Text>
+                                <Text style={styles.temp}>
                                     {`${Math.round(item.day.maxtemp_c)}\u2103`}
                                 </Text>
-                                <Text>
+                                <Text style={styles.temp}>
                                     {`${Math.round(item.day.mintemp_c)}\u2103`}
                                 </Text>
                             </View>
@@ -64,11 +70,12 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
     },
     date: {
+        fontSize: 18,
         paddingTop: 10,
         paddingLeft: 20,
         marginRight: 140
     },
-    icon: {
-        marginRight: 40
+    temp: {
+        fontSize: 18,
     }
 })

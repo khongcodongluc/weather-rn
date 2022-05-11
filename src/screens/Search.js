@@ -8,11 +8,14 @@ import {
     TextInput,
     Image,
     ScrollView,
+    ImageBackground
 } from 'react-native';
 
 import { Feather, AntDesign } from '@expo/vector-icons'
 import citys from '../../model/city';
 import weatherService from '../../api/weatherApi';
+
+const noDataImage = require('../assets/noData.png');
 
 export default function Search({navigation}) {
 
@@ -53,6 +56,7 @@ export default function Search({navigation}) {
                     />
                 </View>
                 {
+                    (city.length > 0) ?
                     (city.map((item) => {
                         return (
                             <TouchableOpacity key={item?.id} style={styles.itemSearch} onPress={() => {navigation.navigate('Home', {
@@ -61,7 +65,13 @@ export default function Search({navigation}) {
                                 <Text style={styles.itemSearchText}>{`${item?.name} - ${item?.country}`}</Text>
                             </TouchableOpacity>
                         );
-                    }))
+                    })) : <Image
+                            alt="noDataImage"
+                            source={noDataImage}
+                            style={{
+                                width: "100%"
+                            }}
+                        />
                 }
                 {/* <ScrollView style={{marginBottom: 50}} 
                     showsVerticalScrollIndicator={false}

@@ -1,4 +1,5 @@
 import { sendGet } from "./axios";
+import { sendGetAir } from "./axiosAir";
 
 const getWeatherByName = async (name = "Hanoi") => {
     try {
@@ -19,9 +20,19 @@ const searchCity = async (name = "") => {
   }
 };
 
+const getAirQuality = async (lat = "21.03", lon = "105.85") => {
+  try {
+    const res = await sendGetAir(`/nearest_city?key=dfbd5d7a-11eb-42ab-beb2-9ede6e8e50e2&lat=${lat}&lon=${lon}`);
+    return res;
+  } catch (error) {
+    return error;
+  }
+};
+
 const weatherService = {
     getWeatherByName, 
     searchCity,
+    getAirQuality
 };
 
 export default weatherService;
