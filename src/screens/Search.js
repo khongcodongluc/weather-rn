@@ -75,7 +75,7 @@ export default function Search({navigation}) {
                             (city.map((item) => {
                                 return (
                                     <TouchableOpacity key={item?.id} style={styles.itemSearch} onPress={() => {navigation.navigate('Home', {
-                                        city: item.name
+                                        lat: item?.coord?.lat, lon: item?.coord?.lon
                                     })}}>
                                         <Text style={styles.itemSearchText}>{`${item?.name} - ${item?.country}`}</Text>
                                     </TouchableOpacity>

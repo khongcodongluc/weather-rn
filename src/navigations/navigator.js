@@ -4,6 +4,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import Home from '../screens/Home';
 import Search from '../screens/Search';
 import NextDay from '../screens/NextDay';
+import Wishlist from '../screens/Wishlist';
 
 const Stack = createStackNavigator();
 
@@ -18,10 +19,11 @@ const StackNavigator = () => {
             <Stack.Screen 
                 name="Home"  
                 component={Home} 
-                initialParams={{ city: "Hanoi" }}
+                initialParams={{ lat: "", lon: "" }}
             />
             <Stack.Screen name="Search" component={Search} />
             <Stack.Screen name="NextDay" component={NextDay} />
+            <Stack.Screen name="Wishlist" component={Wishlist} />
         </Stack.Navigator>
     )
 }

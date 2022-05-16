@@ -1,42 +1,10 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  ImageBackground,
-  useWindowDimensions,
-  StatusBar,
-  Animated,
-  TouchableOpacity,
-  Image
-} from 'react-native';
-
-import locations from './locations';
-
-import weatherService from '../../api/weatherApi';
-
-import { Feather } from '@expo/vector-icons'
-import { Ionicons } from '@expo/vector-icons'; 
+import { AntDesign, Feather, Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
-
-import { getStatusBarHeight } from 'react-native-status-bar-height';
 import { useEffect, useRef, useState } from 'react';
+import { Animated, Image, ImageBackground, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { getStatusBarHeight } from 'react-native-status-bar-height';
+import weatherService from '../../api/weatherApi';
 import getTimeByLocal from '../helpers/convertTime';
-
-const WeatherIcon = weatherType => {
-  if (weatherType == 'Sunny') {
-    return <Feather name="sun" size={40} color="white" />;
-  }
-  if (weatherType == 'Rainy') {
-    return <Feather name="cloud-rain" size={40} color="white" />;
-  }
-  if (weatherType == 'Cloudy' || weatherType == 'Clouds') {
-    return <Feather name="cloud" size={40} color="white" />;
-  }
-  if (weatherType == 'Night') {
-    return <Ionicons name="cloudy-night" size={40} color="white" />;
-  }
-};
 
 const sunnyImage = require('../assets/sunny.jpg');
 const rainyImage = require('../assets/rainy.jpg');
@@ -47,69 +15,96 @@ const blue = require('../assets/Sky_Blue.png');
 export default function Home({route, navigation}) {
   const {width: windowWidth, height: windowHeight} = useWindowDimensions();
 
-  const { city } = route?.params;
+  const { lat, lon } = route?.params;
 
   const [currentWeather, setCurrentWeather] = useState({});
+  const [hourWeather, setHourWeather] = useState([]);
+  const [daysWeather, setDaysWeather] = useState([]);
   const [currentAir, setCurrentAir] = useState({});
   const [isLoading, setIsLoading] = useState(true);
 
-  const [location, setLocation] = useState(null);
-  const [errorMsg, setErrorMsg] = useState(null);
-
-  const scrollX = useRef(new Animated.Value(0)).current;
-
   const getWeatherByName = async () => {
-    setIsLoading(false);
-    const res = await weatherService.getWeatherByName(city);
-    // console.log("res", res);
-    if (res?.status === 200) {
-      const res2 = await weatherService.getAirQuality(res?.data?.location?.lat, res?.data?.location?.lon);
-      // console.log("res2", res2?.data?.data)
-      if (res2?.status === 200) {
-        setCurrentAir(res2?.data);
-        setCurrentWeather(res?.data);
-        setIsLoading(false);       
+    setIsLoading(true);
+    if (lat && lon) {    
+      console.log("1")
+      const res0 = await weatherService.getWeatherByLatLon(lat, lon);
+        // console.log("res0", res0?.data?.coord?.lon);
+        const res1 = await weatherService.getWeatherOneCall(lat, lon);
+        // console.log("res1", res1?.data);
+        if (res0?.status === 200 && res1?.status === 200) {
+          const res2 = await weatherService.getAirQuality(res0?.data?.coord?.lat, res0?.data?.coord?.lon);
+          // console.log("res2", res2?.data?.data)
+          if (res2?.status === 200) {
+            setCurrentAir(res2?.data);
+            setCurrentWeather(res0?.data);
+            setHourWeather(res1?.data?.hourly)
+            setDaysWeather(res1?.data?.daily)
+            setIsLoading(false);       
+          }
+        }
+    } else {
+      console.log("2")
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status === 'granted') {
+        let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Highest, maximumAge: 10000 });    
+        const res0 = await weatherService.getWeatherByLatLon(location?.coords?.latitude, location?.coords?.longitude);
+        // console.log("res0", res0?.data?.coord?.lon);
+        const res1 = await weatherService.getWeatherOneCall(location?.coords?.latitude, location?.coords?.longitude);
+        // console.log("res1", res1?.data);
+        if (res0?.status === 200 && res1?.status === 200) {
+          const res2 = await weatherService.getAirQuality(res0?.data?.coord?.lat, res0?.data?.coord?.lon);
+          // console.log("res2", res2?.data?.data)
+          if (res2?.status === 200) {
+            setCurrentAir(res2?.data);
+            setCurrentWeather(res0?.data);
+            setHourWeather(res1?.data?.hourly)
+            setDaysWeather(res1?.data?.daily)
+            setIsLoading(false);       
+          }
+        }
       }
     }
   }
 
-  useEffect(() => {
-    getWeatherByName();
-  }, [city]);
-
-  useEffect(() => {
-    (async () => {
+  const reload = async () => {
+    setIsLoading(true);
       let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
-        return;
+      if (status === 'granted') {
+        let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Highest, maximumAge: 10000 });    
+        const res0 = await weatherService.getWeatherByLatLon(location?.coords?.latitude, location?.coords?.longitude);
+        // console.log("res0", res0?.data?.coord?.lon);
+        const res1 = await weatherService.getWeatherOneCall(location?.coords?.latitude, location?.coords?.longitude);
+        // console.log("res1", res1?.data);
+        if (res0?.status === 200 && res1?.status === 200) {
+          const res2 = await weatherService.getAirQuality(res0?.data?.coord?.lat, res0?.data?.coord?.lon);
+          // console.log("res2", res2?.data?.data)
+          if (res2?.status === 200) {
+            setCurrentAir(res2?.data);
+            setCurrentWeather(res0?.data);
+            setHourWeather(res1?.data?.hourly)
+            setDaysWeather(res1?.data?.daily)
+            setIsLoading(false);       
+          }
+        }
       }
-
-      let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Highest, maximumAge: 10000 });
-      setLocation(location?.coords);
-    })();
-  }, []);
-
-  let text = 'Waiting..';
-  if (errorMsg) {
-    text = errorMsg;
-  } else if (location) {
-    text = JSON.stringify(location);
   }
 
-  console.log("text", city)
+  useEffect(() => {
+    getWeatherByName();
+  }, [lat, lon]);
+
+  // console.log("text", lat, lon)
+  // console.log("hooour", currentWeather?.weather[0]?.icon)
 
   // console.log(getTimeByLocal.getDate(currentWeather.dt * 1000));
   // console.log(`https:${currentWeather?.current?.condition?.icon}`);
-
-  // const arrayy = Object.keys(currentWeather?.weather);
 
   return (
     <>
       {
       isLoading ? <View style={styles.container}><Text style={{fontSize: 30}}>Đang tải...</Text></View> :
         <>
-          <StatusBar barStyle="light-content" />
+         <StatusBar barStyle="light-content" />
           <ScrollView
             style={{width: windowWidth, height: windowHeight}}
             // key={index}
@@ -127,10 +122,19 @@ export default function Home({route, navigation}) {
                   }}
                 >
                   <View style={styles.topInfoWrapper}>
-                    <View>
-                      <Text style={styles.city}>{currentWeather.location.name}</Text>
-                      {/* <Text style={styles.time}>{getTimeByLocal.getDate(currentWeather.dt * 1000)}</Text> */}
-                      <Text style={styles.time}>{currentWeather.location.localtime}</Text>
+                    <View style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}>
+                      <View>
+                        <Text style={styles.city}>{currentWeather?.name}</Text>
+                        <Text style={styles.time}>{getTimeByLocal.getDate(currentWeather.dt * 1000)}</Text>
+                      </View>
+                      <View>
+                        {/* <AntDesign name="staro" size={40} color="white" /> */}
+                        <AntDesign name="star" size={40} color="white" />
+                      </View>
                     </View>
                     <View
                       style={{
@@ -138,20 +142,22 @@ export default function Home({route, navigation}) {
                       }}
                     >
                       <Text style={styles.temparature}>
-                        {/* {`${Math.round(currentWeather.main?.temp)}\u2103`} */}
-                        {`${Math.round(currentWeather.current?.temp_c)}\u2103`}
+                        {`${Math.round(currentWeather.main?.temp)}\u2103`}
                       </Text>
-                      <View style={{flexDirection: 'row'}}>
+                      <View style={{
+                        flexDirection: 'row'
+                      }}>
                         {/* {WeatherIcon(currentWeather?.weather[0]?.main)} */}
                         <Image
                           alt="icon"
                           source={{
-                            uri: `https:${currentWeather?.current?.condition?.icon}`,
+                            // uri: `https:${currentWeather?.current?.condition?.icon}`,
+                            uri: `https://openweathermap.org/img/wn/${currentWeather?.weather[0]?.icon}@4x.png}`,
                           }}
                           style={{width: 45, height: 45}}
                         />
                         <Text style={styles.weatherType}>
-                          {currentWeather?.current?.condition?.text}
+                          {currentWeather?.weather[0]?.description}
                         </Text>
                       </View>
                     </View>
@@ -167,7 +173,7 @@ export default function Home({route, navigation}) {
                     <View style={{alignItems: 'center'}}>
                       <Text style={styles.infoText}>Wind</Text>
                       <Text style={[styles.infoText, {fontSize: 24}]}>
-                        {currentWeather.current?.wind_kph}
+                        {currentWeather?.wind?.speed}
                       </Text>
                       <Text style={styles.infoText}>km/h</Text>
                       {/* <View style={styles.infoBar}>
@@ -183,8 +189,7 @@ export default function Home({route, navigation}) {
                     <View style={{alignItems: 'center'}}>
                       <Text style={styles.infoText}>Cloud</Text>
                       <Text style={[styles.infoText, {fontSize: 24}]}>
-                        {/* {location.rain} */}
-                        {currentWeather.current?.cloud}
+                        {currentWeather?.clouds?.all}
                       </Text>
                       <Text style={styles.infoText}>%</Text>
                       {/* <View style={styles.infoBar}>
@@ -201,7 +206,7 @@ export default function Home({route, navigation}) {
                     <View style={{alignItems: 'center'}}>
                       <Text style={styles.infoText}>Humidity</Text>
                       <Text style={[styles.infoText, {fontSize: 24}]}>
-                        {currentWeather.current?.humidity}
+                        {currentWeather?.main?.humidity}
                       </Text>
                       <Text style={styles.infoText}>%</Text>
                       {/* <View style={styles.infoBar}>
@@ -298,14 +303,15 @@ export default function Home({route, navigation}) {
                       horizontal={true}
                     >
                       {
-                        currentWeather.forecast.forecastday[0].hour.map((item, index) => {
+                        hourWeather.map((item, index) => {
                           return (
                             <View key={index} style={styles.itemHour}>
                               <Text style={styles.itemTextHour}>
-                                {`${Math.round(item.temp_c)}\u2103`}
+                                {`${Math.round(item?.temp)}\u2103`}
                               </Text>
                               <Text style={styles.itemTextHour}>
-                                {item.time.split(" ")[1]}
+                                {/* {item.time.split(" ")[1]} */}
+                                {getTimeByLocal.getDate(item?.dt * 1000)}
                               </Text>
                             </View>
                           );
@@ -324,15 +330,19 @@ export default function Home({route, navigation}) {
           }}>
             <Feather name="search" size={40} color="white" />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => {navigation.navigate('NextDay', {
-            data: currentWeather.forecast.forecastday
-          })}}>
+
+          <TouchableOpacity onPress={() => {navigation.navigate('Wishlist')}}>
             <Feather name="heart" size={40} color="white" />
           </TouchableOpacity>
+
           <TouchableOpacity onPress={() => {navigation.navigate('NextDay', {
-            data: currentWeather.forecast.forecastday
+            data: daysWeather
           })}}>
-            <Text style={{color: '#fff', marginBottom: 10}}>3days</Text>
+            <AntDesign name="barschart" size={40} color="white" />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => {reload()}}>
+            <Ionicons name="reload" size={40} color="white" />
           </TouchableOpacity>
         </View>
 
@@ -351,7 +361,7 @@ export default function Home({route, navigation}) {
               <Animated.View key={index} style={[styles.normalDot, {width}]} />
             );
           })}
-        </View> */}
+        </View> */} 
   </>
     }
     </>

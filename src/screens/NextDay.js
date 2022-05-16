@@ -2,6 +2,7 @@ import { Text, StyleSheet, View, ScrollView, TouchableOpacity, Image } from 'rea
 import React from 'react'
 
 import { AntDesign, Feather } from '@expo/vector-icons'; 
+import getTimeByLocal from '../helpers/convertTime';
 
 export default function NextDay({route, navigation}) {
     const { data } = route?.params;
@@ -21,20 +22,23 @@ export default function NextDay({route, navigation}) {
                 data.map((item, index) => {
                     return (
                         <View key={index} style={styles.list}>
-                            <Text style={styles.date}>{item.date}</Text>
-                            <Image
+                            <Text style={styles.date}>
+                                {(getTimeByLocal.getDate(item?.dt * 1000)).split(" ")[1]}
+                            </Text>
+                            {/* <Image
                                 alt="icon"
                                 source={{
                                     uri: `https:${item?.day?.condition?.icon}`,
+                                    uri: `https://openweathermap.org/img/wn/${item?.weather[0]?.icon}@4x.png}`,
                                 }}
                                 style={{width: 55, height: 55, marginRight: 38}}
-                            />
+                            /> */}
                             <View>
                                 <Text style={styles.temp}>
-                                    {`${Math.round(item.day.maxtemp_c)}\u2103`}
+                                    {`${Math.round(item?.temp?.max)}\u2103`}
                                 </Text>
                                 <Text style={styles.temp}>
-                                    {`${Math.round(item.day.mintemp_c)}\u2103`}
+                                    {`${Math.round(item?.temp?.min)}\u2103`}
                                 </Text>
                             </View>
                         </View>
