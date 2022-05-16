@@ -17,6 +17,7 @@ import weatherService from '../../api/weatherApi';
 
 import { Feather } from '@expo/vector-icons'
 import { Ionicons } from '@expo/vector-icons'; 
+import * as Location from 'expo-location';
 
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import { useEffect, useRef, useState } from 'react';
@@ -52,15 +53,18 @@ export default function Home({route, navigation}) {
   const [currentAir, setCurrentAir] = useState({});
   const [isLoading, setIsLoading] = useState(true);
 
+  const [location, setLocation] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
+
   const scrollX = useRef(new Animated.Value(0)).current;
 
   const getWeatherByName = async () => {
-    setIsLoading(true);
+    setIsLoading(false);
     const res = await weatherService.getWeatherByName(city);
     // console.log("res", res);
     if (res?.status === 200) {
       const res2 = await weatherService.getAirQuality(res?.data?.location?.lat, res?.data?.location?.lon);
-      console.log("res2", res2?.data?.data)
+      // console.log("res2", res2?.data?.data)
       if (res2?.status === 200) {
         setCurrentAir(res2?.data);
         setCurrentWeather(res?.data);
@@ -72,6 +76,28 @@ export default function Home({route, navigation}) {
   useEffect(() => {
     getWeatherByName();
   }, [city]);
+
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permission to access location was denied');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Highest, maximumAge: 10000 });
+      setLocation(location?.coords);
+    })();
+  }, []);
+
+  let text = 'Waiting..';
+  if (errorMsg) {
+    text = errorMsg;
+  } else if (location) {
+    text = JSON.stringify(location);
+  }
+
+  console.log("text", city)
 
   // console.log(getTimeByLocal.getDate(currentWeather.dt * 1000));
   // console.log(`https:${currentWeather?.current?.condition?.icon}`);

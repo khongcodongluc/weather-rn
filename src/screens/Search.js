@@ -16,6 +16,7 @@ import citys from '../../model/city';
 import weatherService from '../../api/weatherApi';
 
 const noDataImage = require('../assets/noData.png');
+const vnData = require('../assets/vn-data.json');
 
 export default function Search({navigation}) {
 
@@ -24,17 +25,29 @@ export default function Search({navigation}) {
 
     // console.log(citys.filter((item) => item?.city?.toString().startsWith(search)))
 
-    const searchFunc = async (param) => {
-        const res = await weatherService.searchCity(param);
-        console.log("res", res?.data);
-        if (res?.status === 200) {
-            setCity(res?.data);
-        }
+    function removeAccents(str) {
+        return str.normalize('NFD')
+                  .replace(/[\u0300-\u036f]/g, '')
+                  .replace(/đ/g, 'd').replace(/Đ/g, 'D');
     }
+
+    const searchFunc = async (param) => {
+        // const res = await weatherService.searchCity(param);
+        // console.log("res", res?.data);
+        // if (res?.status === 200) {
+        //     setCity(res?.data);
+        // }
+        console.log("kakaka",vnData.filter((item) => item?.name?.toString().startsWith(param)).length) 
+        setCity(vnData.filter((item) => item?.name?.toString().startsWith(param)))
+    }
+
+    // console.log(removeAccents("Đà Nẵng"))
 
     useEffect(() => {
         searchFunc(search);
     }, [search]);
+
+    // console.log("vnData", removeAccents(vnData[0].name))
 
   return (
     <View style={styles.container}>
@@ -56,16 +69,20 @@ export default function Search({navigation}) {
                     />
                 </View>
                 {
-                    (city.length > 0) ?
-                    (city.map((item) => {
-                        return (
-                            <TouchableOpacity key={item?.id} style={styles.itemSearch} onPress={() => {navigation.navigate('Home', {
-                                city: item.name
-                            })}}>
-                                <Text style={styles.itemSearchText}>{`${item?.name} - ${item?.country}`}</Text>
-                            </TouchableOpacity>
-                        );
-                    })) : <Image
+                    (city.length > 0 && city.length < 168) ?
+                    (<ScrollView>
+                        {
+                            (city.map((item) => {
+                                return (
+                                    <TouchableOpacity key={item?.id} style={styles.itemSearch} onPress={() => {navigation.navigate('Home', {
+                                        city: item.name
+                                    })}}>
+                                        <Text style={styles.itemSearchText}>{`${item?.name} - ${item?.country}`}</Text>
+                                    </TouchableOpacity>
+                                );
+                            }))
+                        }
+                    </ScrollView>) : <Image
                             alt="noDataImage"
                             source={noDataImage}
                             style={{
