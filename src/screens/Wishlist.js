@@ -1,8 +1,10 @@
 import { Text, StyleSheet, View, ScrollView, TouchableOpacity, Image } from 'react-native'
 import React from 'react'
+import { useEffect, useState } from 'react';
 
 import { AntDesign, Feather } from '@expo/vector-icons'; 
 import SearchableDropdown from 'react-native-searchable-dropdown';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const items = [
     //name key is must.It is to show the text in front
@@ -19,8 +21,20 @@ const items = [
   ];
 
 export default function Wishlist({route, navigation}) {
+    const [arrWishList, setArrWishList] = useState([])
     // const { data } = route?.params;
     // console.log("data", data[0]);
+    useEffect(async () => {
+        const fvItem = await AsyncStorage.getItem('favourite');
+        if (fvItem) {
+            const arrFvItem = JSON.parse(fvItem);
+            console.log("arrFvItem", arrFvItem);
+            setArrWishList(arrFvItem)
+            } else {
+              setArrWishList([])
+            }
+    }, [])
+    console.log("arrWishList", arrWishList)
     return (
       <View style={styles.container}>
           <View style={styles.header}>
@@ -34,7 +48,11 @@ export default function Wishlist({route, navigation}) {
           <SearchableDropdown
             onTextChange={(text) => console.log(text)}
             //On text change listner on the searchable input
-            onItemSelect={(item) => alert(JSON.stringify(item))}
+            onItemSelect={(item) => {
+                navigation.navigate('Home', {
+                    lat: item?.latitude, lon: item?.longitude
+                })
+            }}
             //onItemSelect called after the selection from the dropdown
             containerStyle={{ padding: 5 }}
             //suggestion container style
@@ -60,9 +78,9 @@ export default function Wishlist({route, navigation}) {
             itemsContainerStyle={{
                 //items container style you can pass maxHeight
                 //to restrict the items dropdown hieght
-                maxHeight: '60%',
+                // maxHeight: '60%',
             }}
-            items={items}
+            items={arrWishList}
             //mapping of item array
             // defaultIndex={2}
             //default selected item index

@@ -5,6 +5,7 @@ import { Animated, Image, ImageBackground, ScrollView, StatusBar, StyleSheet, Te
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import weatherService from '../../api/weatherApi';
 import getTimeByLocal from '../helpers/convertTime';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const sunnyImage = require('../assets/sunny.jpg');
 const rainyImage = require('../assets/rainy.jpg');
@@ -22,6 +23,7 @@ export default function Home({route, navigation}) {
   const [daysWeather, setDaysWeather] = useState([]);
   const [currentAir, setCurrentAir] = useState({});
   const [isLoading, setIsLoading] = useState(true);
+  const [isWishlist, setIsWishlist] = useState(false);
 
   const getWeatherByName = async () => {
     setIsLoading(true);
@@ -35,6 +37,21 @@ export default function Home({route, navigation}) {
           const res2 = await weatherService.getAirQuality(res0?.data?.coord?.lat, res0?.data?.coord?.lon);
           // console.log("res2", res2?.data?.data)
           if (res2?.status === 200) {
+            const fvItem = await AsyncStorage.getItem('favourite');
+            if (fvItem) {
+              const arrFvItem = JSON.parse(fvItem);
+              console.log("arrFvItem", arrFvItem);
+              const item = arrFvItem.filter(item => {
+                return item.name === res0?.data?.name;
+              })                 
+              if (item.length !== 0) {
+                setIsWishlist(true)
+              } else {
+                setIsWishlist(false)
+              } 
+            } else {
+              setIsWishlist(false)
+            }
             setCurrentAir(res2?.data);
             setCurrentWeather(res0?.data);
             setHourWeather(res1?.data?.hourly)
@@ -55,6 +72,21 @@ export default function Home({route, navigation}) {
           const res2 = await weatherService.getAirQuality(res0?.data?.coord?.lat, res0?.data?.coord?.lon);
           // console.log("res2", res2?.data?.data)
           if (res2?.status === 200) {
+            const fvItem = await AsyncStorage.getItem('favourite');
+            if (fvItem) {
+              const arrFvItem = JSON.parse(fvItem);
+              console.log("arrFvItem", arrFvItem);
+              const item = arrFvItem.filter(item => {
+                return item.name === res0?.data?.name;
+              })                 
+              if (item.length !== 0) {
+                setIsWishlist(true)
+              } else {
+                setIsWishlist(false)
+              }
+            } else {
+              setIsWishlist(false)
+            }
             setCurrentAir(res2?.data);
             setCurrentWeather(res0?.data);
             setHourWeather(res1?.data?.hourly)
@@ -79,6 +111,21 @@ export default function Home({route, navigation}) {
           const res2 = await weatherService.getAirQuality(res0?.data?.coord?.lat, res0?.data?.coord?.lon);
           // console.log("res2", res2?.data?.data)
           if (res2?.status === 200) {
+            const fvItem = await AsyncStorage.getItem('favourite');
+            if (fvItem) {
+              const arrFvItem = JSON.parse(fvItem);
+              console.log("arrFvItem", arrFvItem);
+              const item = arrFvItem.filter(item => {
+                return item.name === res0?.data?.name;
+              })                 
+              if (item.length !== 0) {
+                setIsWishlist(true)
+              } else {
+                setIsWishlist(false)
+              }
+            } else {
+              setIsWishlist(false)
+            }
             setCurrentAir(res2?.data);
             setCurrentWeather(res0?.data);
             setHourWeather(res1?.data?.hourly)
@@ -133,7 +180,55 @@ export default function Home({route, navigation}) {
                       </View>
                       <View>
                         {/* <AntDesign name="staro" size={40} color="white" /> */}
-                        <AntDesign name="star" size={40} color="white" />
+                        <TouchableOpacity onPress={async () => {
+                          if (isWishlist) {
+                            const fvItem = await AsyncStorage.getItem('favourite');
+                            // console.log("fvItem", fvItem)
+                            if (fvItem) {
+                              const arrFvItem = JSON.parse(fvItem);
+                              console.log("arrFvItem", arrFvItem);
+                              const item = arrFvItem.filter(item => {
+                                return item.name !== currentWeather?.name;
+                              })
+                              await AsyncStorage.setItem('favourite', JSON.stringify(item));
+                            }
+                          } else {
+                            const fvItem = await AsyncStorage.getItem('favourite');
+                            // console.log("fvItem", fvItem)
+                            if (!fvItem) {
+                              const addItem = JSON.stringify([
+                                {
+                                  name: currentWeather?.name,
+                                  latitude: currentWeather?.coord?.lat,
+                                  longitude: currentWeather?.coord?.lon,
+                                }
+                              ]);
+                              console.log("addItem", addItem);
+                              await AsyncStorage.setItem('favourite', addItem);
+                            } else {
+                              const arrFvItem = JSON.parse(fvItem);
+                              console.log("arrFvItem", arrFvItem);
+                              const item = arrFvItem.filter(item => {
+                                return item.name === currentWeather?.name;
+                              })
+                    
+                              if (item.length == 0) {
+                                arrFvItem.push({
+                                  name: currentWeather?.name,
+                                  latitude: currentWeather?.coord?.lat,
+                                  longitude: currentWeather?.coord?.lon,
+                                });
+                                await AsyncStorage.setItem('favourite', JSON.stringify(arrFvItem));
+                              }
+                            }
+                          }
+                          setIsWishlist(!isWishlist)
+                        }}>
+                          {/* <AntDesign name="star" size={40} color="white" /> */}
+                          {
+                            isWishlist ? <AntDesign name="star" size={40} color="white" /> : <AntDesign name="staro" size={40} color="white" />
+                          }
+                        </TouchableOpacity>
                       </View>
                     </View>
                     <View
@@ -152,7 +247,7 @@ export default function Home({route, navigation}) {
                           alt="icon"
                           source={{
                             // uri: `https:${currentWeather?.current?.condition?.icon}`,
-                            uri: `https://openweathermap.org/img/wn/${currentWeather?.weather[0]?.icon}@4x.png}`,
+                            uri: `https://openweathermap.org/img/wn/${currentWeather?.weather[0]?.icon}@4x.png`,
                           }}
                           style={{width: 45, height: 45}}
                         />
