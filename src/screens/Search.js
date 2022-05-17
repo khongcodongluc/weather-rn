@@ -12,8 +12,6 @@ import {
 } from 'react-native';
 
 import { Feather, AntDesign } from '@expo/vector-icons'
-import citys from '../../model/city';
-import weatherService from '../../api/weatherApi';
 
 const noDataImage = require('../assets/noData.png');
 const vnData = require('../assets/vn-data.json');
@@ -32,13 +30,8 @@ export default function Search({navigation}) {
     }
 
     const searchFunc = async (param) => {
-        // const res = await weatherService.searchCity(param);
-        // console.log("res", res?.data);
-        // if (res?.status === 200) {
-        //     setCity(res?.data);
-        // }
         console.log("kakaka",vnData.filter((item) => item?.name?.toString().startsWith(param)).length) 
-        setCity(vnData.filter((item) => item?.name?.toString().startsWith(param)))
+        setCity(vnData.filter((item) => removeAccents(item?.name)?.toLowerCase().includes(param.toLowerCase())))
     }
 
     // console.log(removeAccents("Đà Nẵng"))

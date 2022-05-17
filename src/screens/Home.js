@@ -64,13 +64,14 @@ export default function Home({route, navigation}) {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status === 'granted') {
         let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Highest, maximumAge: 10000 });    
+        // console.log("location", location.coords)
         const res0 = await weatherService.getWeatherByLatLon(location?.coords?.latitude, location?.coords?.longitude);
-        // console.log("res0", res0?.data?.coord?.lon);
+        console.log("res0", res0?.status);
         const res1 = await weatherService.getWeatherOneCall(location?.coords?.latitude, location?.coords?.longitude);
-        // console.log("res1", res1?.data);
+        console.log("res1", res1?.status);
         if (res0?.status === 200 && res1?.status === 200) {
           const res2 = await weatherService.getAirQuality(res0?.data?.coord?.lat, res0?.data?.coord?.lon);
-          // console.log("res2", res2?.data?.data)
+          console.log("res2", res2?.data?.data)
           if (res2?.status === 200) {
             const fvItem = await AsyncStorage.getItem('favourite');
             if (fvItem) {
