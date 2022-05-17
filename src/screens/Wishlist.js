@@ -1,29 +1,12 @@
-import { Text, StyleSheet, View, ScrollView, TouchableOpacity, Image } from 'react-native'
-import React from 'react'
-import { useEffect, useState } from 'react';
-
-import { AntDesign, Feather } from '@expo/vector-icons'; 
-import SearchableDropdown from 'react-native-searchable-dropdown';
+import { AntDesign } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import SearchableDropdown from 'react-native-searchable-dropdown';
 
-const items = [
-    //name key is must.It is to show the text in front
-    { id: 1, name: 'angellist' },
-    { id: 2, name: 'codepen' },
-    { id: 3, name: 'envelope' },
-    { id: 4, name: 'etsy' },
-    { id: 5, name: 'facebook' },
-    { id: 6, name: 'foursquare' },
-    { id: 7, name: 'github-alt' },
-    { id: 8, name: 'github' },
-    { id: 9, name: 'gitlab' },
-    { id: 10, name: 'instagram' },
-  ];
 
 export default function Wishlist({route, navigation}) {
     const [arrWishList, setArrWishList] = useState([])
-    // const { data } = route?.params;
-    // console.log("data", data[0]);
     useEffect(async () => {
         const fvItem = await AsyncStorage.getItem('favourite');
         if (fvItem) {
@@ -34,7 +17,7 @@ export default function Wishlist({route, navigation}) {
               setArrWishList([])
             }
     }, [])
-    console.log("arrWishList", arrWishList)
+    // console.log("arrWishList", arrWishList)
     return (
       <View style={styles.container}>
           <View style={styles.header}>
@@ -110,21 +93,4 @@ const styles = StyleSheet.create({
         fontSize: 24,
         borderBottomWidth: 1,
     },
-    list: {
-        marginTop: 20,
-        paddingBottom: 10,
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'row',
-        borderBottomWidth: 1,
-    },
-    date: {
-        fontSize: 18,
-        paddingTop: 10,
-        paddingLeft: 20,
-        marginRight: 140
-    },
-    temp: {
-        fontSize: 18,
-    }
 })

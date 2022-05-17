@@ -149,7 +149,7 @@ export default function Home({route, navigation}) {
   return (
     <>
       {
-      isLoading ? <View style={styles.container}><Text style={{fontSize: 30}}>Đang tải...</Text></View> :
+      isLoading ? <View style={styles.container}><Text style={{fontSize: 30}}>Loading...</Text></View> :
         <>
          <StatusBar barStyle="light-content" />
           <ScrollView
@@ -179,7 +179,6 @@ export default function Home({route, navigation}) {
                         <Text style={styles.time}>{getTimeByLocal.getDate(currentWeather.dt * 1000)}</Text>
                       </View>
                       <View>
-                        {/* <AntDesign name="staro" size={40} color="white" /> */}
                         <TouchableOpacity onPress={async () => {
                           if (isWishlist) {
                             const fvItem = await AsyncStorage.getItem('favourite');
